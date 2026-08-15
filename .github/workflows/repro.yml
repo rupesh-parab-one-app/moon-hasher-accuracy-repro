@@ -15,6 +15,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # moon runs git queries to resolve touched files and warns that a
+          # shallow checkout cannot support them. The repository is tiny, so
+          # full history costs nothing and keeps moon on its normal path.
+          fetch-depth: 0
 
       # Node is needed only to install the pinned moon CLI. No project
       # dependencies are installed; the lockfiles under test are committed.
