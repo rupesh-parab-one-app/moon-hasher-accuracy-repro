@@ -30,9 +30,10 @@ different resolved dependencies.
 ./repro.sh
 ```
 
-The script installs moon 2.5.0 into `tools/moon-cli/` on first run and needs
-nothing else. **Exit 0 means the defect is still present.** If you are testing a
-fix, you want this script to fail.
+On first run the script installs moon 2.5.0 into `tools/moon-cli/` and runs
+`moon setup` to fetch the pinned node and pnpm toolchains, which takes about
+half a minute. Later runs reuse both. **Exit 0 means the defect is still
+present.** If you are testing a fix, you want this script to fail.
 
 ## Expected output
 
@@ -46,8 +47,8 @@ Precondition: the javascript dependencies block is emitted
 
 1. The defect: lockfile moves inside the declared range, hash does not
   declaration held at ~2.16.9; lockfile resolved 2.16.9 -> 2.16.11
-  lockfile 2.16.9  -> hash 8435ece1  recorded: ~2.16.9
-  lockfile 2.16.11 -> hash 8435ece1  recorded: ~2.16.9
+  lockfile 2.16.9  -> hash 6e486c8c  recorded: ~2.16.9
+  lockfile 2.16.11 -> hash 6e486c8c  recorded: ~2.16.9
   PASS recorded the declared range, not a digest
   PASS task hash unchanged across the lockfile change
   PASS moon served a CACHE HIT against the new lockfile
@@ -67,7 +68,7 @@ Precondition: the javascript dependencies block is emitted
 
 The hashes are reproducible. `node` and `pnpm` are pinned in
 `.moon/toolchains.yml` and each contributes a `version` entry to the hash, so
-`8435ece1` should appear on any machine. It was confirmed identical against a
+`6e486c8c` should appear on any machine. It was confirmed identical against a
 clean `MOON_HOME` that had to download every toolchain plugin from scratch.
 
 ## What each measurement rules out
@@ -125,10 +126,11 @@ fixtures/pnpm-lock.*.yaml     the two lockfiles, by resolved version
 repro.sh                      swaps fixtures in, runs moon, asserts
 ```
 
-Nothing is installed into `node_modules` and no npm registry request is made
-during measurement. moon's hasher reads `package.json` and `pnpm-lock.yaml` as
-text, so committed lockfiles are enough, and the reproduction cannot drift when
-a new `fp-ts` patch is published.
+No project dependency is ever installed and no npm registry request is made for
+`fp-ts`. moon's hasher reads `package.json` and `pnpm-lock.yaml` as text, so the
+committed lockfiles are enough, and the reproduction cannot drift when a new
+`fp-ts` patch is published. The only downloads are moon itself, its JavaScript
+toolchain plugin, and the pinned node and pnpm that `moon setup` installs.
 
 ### Two details worth knowing before you call the fixtures invalid
 
