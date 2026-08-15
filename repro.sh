@@ -64,9 +64,12 @@ run_case() {
 import re
 p='pnpm-lock.yaml'; s=open(p).read()
 open(p,'w').write(re.sub(r'specifier: .*', 'specifier: $spec', s, count=1))"
-  # Purge state so a moon invocation that fails for an unrelated reason cannot
-  # leave a previous case's hash behind to be read as a fresh result.
-  rm -rf .moon/cache/states/app .moon/cache/hashes
+  # Drop only the last-run record, so a moon invocation that fails for an
+  # unrelated reason cannot leave a previous case's hash to be read as a fresh
+  # result. The output archive under .moon/cache must survive: measurement 1
+  # asserts a cache hit, and purging the cache would guarantee a miss on any
+  # machine that had not already run this script.
+  rm -f .moon/cache/states/app/build/lastRun.json
   CASE_OUT=$($MOON_BIN run app:build --no-actions 2>&1)
   CASE_HASH=$(python3 -c "
 import json
