@@ -1,0 +1,23 @@
+$schema: https://moonrepo.dev/schemas/project.json
+
+id: app
+layer: library
+language: javascript
+
+tasks:
+  build:
+    # A no-op that only writes its declared output. Every measured run passes
+    # --no-actions, so no dependencies are installed and a real build command
+    # would fail; a failing run still writes a hash but muddies the signal.
+    command:
+      - node
+      - ./build.mjs
+    # `inputs` must never match pnpm-lock.yaml. The lockfile changes between
+    # cases by design, and an input change moves the hash on its own -- which
+    # would look like the defect being absent.
+    inputs:
+      - src/**/*
+    outputs:
+      - dist
+    toolchains:
+      - node

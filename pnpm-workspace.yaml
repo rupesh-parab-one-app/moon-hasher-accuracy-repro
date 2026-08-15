@@ -1,0 +1,9 @@
+packages:
+  - packages/*
+
+# Case 3 resolves `"fp-ts": "catalog:"` through this entry. A large monorepo
+# that centralises versions declares every dependency this way, so the range
+# reaching moon's hasher arrives by catalog indirection rather than from the
+# consuming package.json.
+catalog:
+  fp-ts: "~2.16.9"

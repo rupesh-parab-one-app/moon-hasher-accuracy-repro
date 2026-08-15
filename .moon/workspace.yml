@@ -1,0 +1,24 @@
+$schema: https://moonrepo.dev/schemas/workspace.json
+
+# Pinned to a single version so this repository refuses to run under a moon it
+# was not measured against, rather than producing a result a reader might
+# attribute to the wrong version. A maintainer testing a fix on a newer moon
+# must widen this; see README.md.
+#
+# Single comparator only. moon 2.5.0 rejects every multi-comparator form with
+# "Failed to parse a version requirement", including both ">=2.5.0, <2.6" and
+# ">=2.5.0 <2.6". moon 2.4.6 accepted the comma form, so this is a parser
+# change between the two releases, not a preference.
+versionConstraint: "=2.5.0"
+
+projects:
+  - packages/*
+
+vcs:
+  defaultBranch: main
+  # moon writes git hooks on every task run and cannot handle `.git` being a
+  # file, which is what a worktree checkout has.
+  sync: false
+
+codeowners:
+  sync: false

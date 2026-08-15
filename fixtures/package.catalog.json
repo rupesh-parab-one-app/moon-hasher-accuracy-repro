@@ -1,0 +1,8 @@
+{
+  "name": "@repro/app",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "fp-ts": "catalog:"
+  }
+}

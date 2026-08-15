@@ -1,0 +1,19 @@
+$schema: https://moonrepo.dev/schemas/toolchain.json
+
+# The defect spans two repositories. moon core holds the matcher that fails, but
+# the manifest and lockfile parsing that feeds it lives in the JavaScript
+# toolchain plugin, which is released on its own cadence. Pinning the moon CLI
+# alone would leave half the defect surface free to move under a reader, so the
+# plugin is pinned to an explicit release here.
+javascript:
+  plugin: https://github.com/moonrepo/plugins/releases/download/javascript_toolchain-v1.2.2/javascript_toolchain.wasm
+  packageManager: pnpm
+
+# node and pnpm each contribute a `version` entry to every task hash. Pinning
+# them keeps recorded hashes identical across machines; the versions are never
+# downloaded because every measured run passes --no-actions.
+node:
+  version: 22.22.3
+
+pnpm:
+  version: 10.30.0
