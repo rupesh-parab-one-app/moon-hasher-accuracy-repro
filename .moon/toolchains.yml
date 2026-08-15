@@ -10,8 +10,12 @@ javascript:
   packageManager: pnpm
 
 # node and pnpm each contribute a `version` entry to every task hash. Pinning
-# them keeps recorded hashes identical across machines; the versions are never
-# downloaded because every measured run passes --no-actions.
+# them is what makes the hashes in README.md identical on every machine.
+#
+# The build task deliberately runs `bash`, not `node`, so moon never has to
+# locate a proto-managed node binary. Pinning a version moon has not installed
+# would otherwise fail the run outright, because every measured run passes
+# --no-actions and therefore skips toolchain setup.
 node:
   version: 22.22.3
 

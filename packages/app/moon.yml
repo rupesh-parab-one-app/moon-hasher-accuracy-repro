@@ -6,12 +6,12 @@ language: javascript
 
 tasks:
   build:
-    # A no-op that only writes its declared output. Every measured run passes
-    # --no-actions, so no dependencies are installed and a real build command
-    # would fail; a failing run still writes a hash but muddies the signal.
+    # Runs bash rather than node on purpose. The task only has to produce a
+    # cacheable output; using the pinned node would make moon locate a
+    # proto-managed binary that --no-actions never installs.
     command:
-      - node
-      - ./build.mjs
+      - bash
+      - ./build.sh
     # `inputs` must never match pnpm-lock.yaml. The lockfile changes between
     # cases by design, and an input change moves the hash on its own -- which
     # would look like the defect being absent.
@@ -19,5 +19,8 @@ tasks:
       - src/**/*
     outputs:
       - dist
+    # The node toolchain is what pulls the javascript dependency fingerprint
+    # into the hash. Without it the manifest carries no dependencies block and
+    # every measurement below is void.
     toolchains:
       - node

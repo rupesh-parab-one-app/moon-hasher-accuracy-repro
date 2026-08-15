@@ -52,6 +52,17 @@ note "Versions under test"
 echo "  moon:             $($MOON_BIN --version 2>/dev/null)"
 echo "  javascript plugin: $(grep -o 'javascript_toolchain-v[0-9.]*' .moon/toolchains.yml | head -1)"
 
+# node and pnpm are pinned so the hashes below are identical on every machine,
+# which means moon has to have them installed. Every measured run passes
+# --no-actions and therefore skips setup, so it is done once, here. On a machine
+# that already has these versions this is a no-op; otherwise it downloads them.
+note "Preparing the pinned toolchain (one-time, ~30s on a cold machine)"
+if ! $MOON_BIN setup >/dev/null 2>&1; then
+  echo "  moon setup failed; cannot run the measurements" >&2
+  exit 2
+fi
+echo "  ready"
+
 # Swap in one (declaration, lockfile) pair and return the task hash plus the
 # value moon recorded for fp-ts. The lockfile's importer `specifier` is set to
 # match the declaration so the pair is never self-contradictory; moon reads only
