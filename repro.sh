@@ -102,6 +102,8 @@ run_case package.range.json pnpm-lock.2.16.11.yaml "~2.16.9"
 hash_hi="$CASE_HASH"; rec_hi="$CASE_RECORDED"
 echo "  lockfile 2.16.9  -> hash ${hash_lo:0:8}  recorded: $rec_lo"
 echo "  lockfile 2.16.11 -> hash ${hash_hi:0:8}  recorded: $rec_hi"
+echo "  moon reported:"
+sed 's/^/    /' <<<"$CASE_OUT" | grep -vE '^\s*$'
 
 [ "$rec_lo" = "~2.16.9" ] \
   && pass "recorded the declared range, not a digest" \
