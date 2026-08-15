@@ -1,0 +1,7 @@
+{
+  "name": "moon-cli-pin-246",
+  "private": true,
+  "dependencies": {
+    "@moonrepo/cli": "2.4.6"
+  }
+}

@@ -1,4 +1,16 @@
-# moon `hasher.optimization: accuracy` records ranges, not resolved versions
+# Two moon reproductions
+
+This repository reproduces two independent defects, each with its own script.
+Both exit 0 while the defect is present.
+
+| Script | Defect |
+|---|---|
+| `./repro.sh` | `hasher.optimization: accuracy` records declared ranges instead of lockfile-resolved digests, so a lockfile change inside the range yields a cache hit |
+| `./repro-version-constraint.sh` | moon 2.5.0 cannot parse a multi-comparator `versionConstraint` that moon 2.4.6 accepts |
+
+---
+
+# 1. `hasher.optimization: accuracy` records ranges, not resolved versions
 
 The documentation for [`hasher.optimization`](https://moonrepo.dev/docs/config/workspace#optimization) states:
 
@@ -148,3 +160,36 @@ requirement`. moon 2.4.6 accepted the comma form. Use a single comparator.
 `repro.sh` refuses to start if `packages/app/package.json` or `pnpm-lock.yaml`
 has uncommitted changes, and restores both on exit, so repeated runs are
 idempotent.
+
+---
+
+# 2. moon 2.5.0 rejects a `versionConstraint` that 2.4.6 accepts
+
+```bash
+./repro-version-constraint.sh
+```
+
+This one was found while building the reproduction above, and is unrelated to
+hashing. moon 2.5.0 fails to parse any multi-comparator `versionConstraint`:
+
+```
+constraint         moon 2.4.6 moon 2.5.0
+>=2.4.6, <3        PARSES     REJECTED
+>=2.4.6 <3         PARSES     REJECTED
+^2.4.6             PARSES     PARSES
+=2.5.0             PARSES     PARSES
+```
+
+The failure is `Failed to parse a version requirement`, raised while loading
+`.moon/workspace.yml`, before any task runs.
+
+The combination that bites is specific: a repository pinning `">=2.4.6, <3"` is
+declaring that 2.5.0 is acceptable, so an upgrade selects it, and moon 2.5.0
+then cannot read the very constraint that admitted it. The string is valid
+semver and the previous release parsed it.
+
+The script installs both 2.4.6 and 2.5.0 into `tools/`, builds a throwaway
+workspace in a temp directory, and probes each constraint under both binaries,
+so the contrast is measured rather than asserted. It leaves nothing behind.
+
+Workaround: use a single comparator, for example `^2.4.6`.
