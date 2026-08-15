@@ -1,0 +1,31 @@
+name: reproductions
+
+# A green run means both defects are STILL PRESENT. Both scripts exit 0 while
+# reproducing, so this job turns red once either is fixed upstream.
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Weekly, so a fix upstream shows up here without anyone re-running it.
+    - cron: "0 6 * * 1"
+
+jobs:
+  reproduce:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Node is needed only to install the pinned moon CLI. No project
+      # dependencies are installed; the lockfiles under test are committed.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # The runner has no ~/.moon, so this also proves the reproduction works
+      # against a cold toolchain-plugin cache.
+      - name: hasher.optimization accuracy records ranges
+        run: ./repro.sh
+
+      - name: moon 2.5.0 rejects multi-comparator versionConstraint
+        run: ./repro-version-constraint.sh
