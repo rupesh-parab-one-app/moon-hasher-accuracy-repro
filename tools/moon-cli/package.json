@@ -2,6 +2,6 @@
   "name": "moon-cli-pin",
   "private": true,
   "dependencies": {
-    "@moonrepo/cli": "2.5.0"
+    "@moonrepo/cli": "2.5.1"
   }
 }

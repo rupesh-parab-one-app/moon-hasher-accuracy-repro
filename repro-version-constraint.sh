@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 #
 # Reproduces a second, unrelated regression found while building the hasher
-# reproduction: moon 2.5.0 cannot parse a multi-comparator `versionConstraint`
-# that moon 2.4.6 accepts.
+# reproduction: the moon 2.5 line cannot parse the comma-separated
+# `versionConstraint` ">=2.4.6, <3" that moon 2.4.6 accepts.
 #
-# This matters because a repository pinning ">=2.4.6, <3" is asking for 2.5.0
-# and will be given it, then fails to load its own workspace config before any
-# task runs.
+# The space-separated form ">=2.4.6 <3" is probed alongside it. Every release
+# here rejects that one, so it is a control rather than a second regression:
+# it rules out the reading that 2.5 merely wants a different separator.
+#
+# This matters because a repository pinning ">=2.4.6, <3" is asking for the
+# newest 2.x and will be given it, then fails to load its own workspace config
+# before any task runs.
 #
 # Exit 0 means the regression is still present.
 
@@ -15,7 +19,7 @@ set -uo pipefail
 cd "$(dirname "$0")"
 repo="$PWD"
 
-NEW_PIN="2.5.0"
+NEW_PIN="2.5.1"
 OLD_PIN="2.4.6"
 NEW_MOON="tools/moon-cli/node_modules/.bin/moon"
 OLD_MOON="tools/moon-cli-2.4.6/node_modules/.bin/moon"
@@ -53,9 +57,15 @@ git -C "$scratch" -c user.email=repro@local -c user.name=repro commit -q --allow
 probe() {
   local bin="$1" constraint="$2"
   printf 'versionConstraint: "%s"\nprojects:\n  - "."\n' "$constraint" > "$scratch/.moon/workspace.yml"
-  local out
-  out=$(cd "$scratch" && "$repo/$bin" projects 2>&1)
-  if grep -q "version requirement" <<<"$out"; then echo "REJECTED"; else echo "PARSES"; fi
+  local out rc
+  out=$(cd "$scratch" && "$repo/$bin" projects 2>&1); rc=$?
+  # Classify on moon's own error taxonomy rather than one release's wording. A
+  # parse failure names the offending field; a constraint that parses but
+  # excludes the running binary reports invalid_version. Anything else means
+  # moon did not run, and must not be reported as acceptance.
+  if grep -q "versionConstraint:" <<<"$out"; then echo "REJECTED"
+  elif [ "$rc" -eq 0 ] || grep -q "invalid_version" <<<"$out"; then echo "PARSES"
+  else echo "ERROR(rc=$rc)"; fi
 }
 
 note "Versions under test"

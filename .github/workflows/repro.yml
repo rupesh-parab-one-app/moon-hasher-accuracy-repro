@@ -32,5 +32,5 @@ jobs:
       - name: hasher.optimization accuracy records ranges
         run: ./repro.sh
 
-      - name: moon 2.5.0 rejects multi-comparator versionConstraint
+      - name: the 2.5 line rejects the comma-form versionConstraint 2.4.6 accepts
         run: ./repro-version-constraint.sh

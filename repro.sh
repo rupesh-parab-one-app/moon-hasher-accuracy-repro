@@ -12,7 +12,7 @@ set -uo pipefail
 
 cd "$(dirname "$0")"
 
-MOON_PIN="2.5.0"
+MOON_PIN="2.5.1"
 LOCAL_MOON="tools/moon-cli/node_modules/.bin/moon"
 
 FP_INTEGRITY_9="sha512-+I2+FnVB+tVaxcYyQkHUq7ZdKScaBlX53A41mxQtpIccsfyv8PzdzP7fzp2AY832T4aoK6UZ5WRX/ebGd8uZuQ=="
